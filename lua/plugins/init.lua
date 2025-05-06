@@ -14,23 +14,34 @@ M = {
 			    capabilities = require('cmp_nvim_lsp').default_capabilities()
 			})
 
-		    -- TODO Texlab, Python LSP
-		    local servers = {'clangd'}
+		    -- Simple LSPs that don't need any more configuration
+		    -- C / C++: Use clangd for everything
+		    -- Python: use Ruff for {formating, linting, organising imports}
+		    local servers = {'clangd', 'ruff'}
 		    for _, server in ipairs(servers) do
-			print(string.format("Enabling %s", server))
 			vim.lsp.enable(server)
 		    end
 
-		    -- TODO Customize vim.diagnostic
+		    vim.diagnostic.config ({
+			signs = {
+			   text = {
+		    	       [vim.diagnostic.severity.ERROR] = '🌺',
+		    	       [vim.diagnostic.severity.WARN] = '🌻',
+		    	       [vim.diagnostic.severity.INFO] = '🍇',
+		    	       [vim.diagnostic.severity.HINT] = '🫐',
+		    	   }
+		        }
+		    })
 
 		    local set = vim.keymap.set
 		    local bufopts = { noremap = true, silent = true, buffer = bufnr }
 
-		    -- TODO Add these for rustaceanvim
+		    -- TODO Utilize rustaceanvims advanced commands
 
 		    set("n", "<leader>f", vim.lsp.buf.format, bufopts)
 		    set("n", "<leader>r", vim.lsp.buf.rename, bufopts)
 		    set("n", "<leader>a", vim.lsp.buf.code_action, bufopts)
+		    set("n", "<leader>e", vim.diagnostic.open_float, bufopts)
 		    set("n", "gD", vim.lsp.buf.declaration, bufopts)
 		    set("n", "gd", vim.lsp.buf.definition, bufopts)
 		    set("n", "K", vim.lsp.buf.hover, bufopts)
@@ -39,12 +50,33 @@ M = {
 		end,
 	}, 
 
-	-- TODO Maybe use ray-x/lsp_signature.nvim ? 
+	{
+	    "mfussenegger/nvim-lint",
+	    config = function()
+	    	require('lint').linters_by_ft = {
+		    -- mypy: Static type analysis for Python
+		    python = {'mypy'}
+		}
+	    end
+	},
+
+
+	{
+	    "ray-x/lsp_signature.nvim",
+	    event = "InsertEnter",
+	    opts = {
+		handler_opts = {
+		    border = "rounded"
+		},
+		hint_prefix = '🌈 '
+	    }
+	},
 	
 	{
 	    "mrcjkb/rustaceanvim",
 	    version = '^6',
-	    lazy = false
+	    lazy = false,
+
 	},
 	{
 		"hrsh7th/nvim-cmp",
