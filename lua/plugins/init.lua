@@ -7,6 +7,16 @@ M = {
             vim.cmd("colorscheme rose-pine")
         end,
     },
+
+    {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+            library = {
+                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+            }
+        }
+    },
     {
         "neovim/nvim-lspconfig",
         config = function()
@@ -32,9 +42,6 @@ M = {
                     }
                 }
             })
-
-
-            -- Include https://github.com/folke/lazydev.nvim
 
             local set = vim.keymap.set
             local bufopts = { noremap = true, silent = true }
