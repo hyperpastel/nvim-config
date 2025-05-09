@@ -9,6 +9,13 @@ M = {
     },
 
     {
+        'lervag/vimtex',
+        lazy = false,
+        config = function()
+            vim.g.vimtex_view_method = "zathura"
+        end
+    },
+    {
         "folke/lazydev.nvim",
         ft = "lua",
         opts = {
@@ -24,13 +31,29 @@ M = {
                 capabilities = require('cmp_nvim_lsp').default_capabilities()
             })
 
-            -- Simple LSPs that don't need any more configuration
             -- C / C++: Use clangd for everything
-            -- Python: use Ruff for {formating, linting, organising imports}
-            local servers = { 'clangd', 'ruff', 'lua_ls' }
+            -- Python: use Ruff for {formating, linting, organising imports}, Pylsp for completions
+            -- Lua: Use lua_ls with lazydev for config writing
+            -- LaTeX: use texlab for everything
+
+            local servers = { 'clangd', 'ruff', 'pylsp', 'lua_ls', 'texlab' }
             for _, server in ipairs(servers) do
                 vim.lsp.enable(server)
             end
+
+            vim.lsp.config('pylsp', {
+                settings = {
+                    pylsp = {
+                        -- Ruff does this for us but faster
+                        plugins = {
+                            autopep8    = { enabled = false },
+                            mccabe      = { enabled = false },
+                            preload     = { enabled = false },
+                            pycodestyle = { enabled = false },
+                        }
+                    }
+                }
+            })
 
             vim.diagnostic.config({
                 signs = {
@@ -46,18 +69,31 @@ M = {
             local set = vim.keymap.set
             local bufopts = { noremap = true, silent = true }
 
-            -- TODO Utilize rustaceanvims advanced commands
+            -- In the future, we might add more of rustaceanvims functionality
 
-            -- vim.api.nvim_crate_aut
+            vim.api.nvim_create_autocmd('LspAttach', {
+                callback = function(ev)
+                    local client = vim.lsp.get_client_by_id(ev.data.client_id)
 
-            set("n", "<leader>f", vim.lsp.buf.format, bufopts)
-            set("n", "<leader>r", vim.lsp.buf.rename, bufopts)
-            set("n", "<leader>a", vim.lsp.buf.code_action, bufopts)
-            set("n", "<leader>e", vim.diagnostic.open_float, bufopts)
-            set("n", "gD", vim.lsp.buf.declaration, bufopts)
-            set("n", "gd", vim.lsp.buf.definition, bufopts)
-            set("n", "K", vim.lsp.buf.hover, bufopts)
-            set("n", "gi", vim.lsp.buf.implementation, bufopts)
+                    if client ~= nil and client.name == 'rust_analyzer' then
+                        set("n", "K", function()
+                            vim.cmd.RustLsp({ 'hover', 'actions' })
+                        end, bufopts)
+                        set("n", "<leader>a", function()
+                            vim.cmd.RustLsp('codeAction')
+                        end, bufopts)
+                    else
+                        set("n", "<leader>a", vim.lsp.buf.code_action, bufopts)
+                        set("n", "K", vim.lsp.buf.hover, bufopts)
+                    end
+                    set("n", "<leader>f", vim.lsp.buf.format, bufopts)
+                    set("n", "<leader>r", vim.lsp.buf.rename, bufopts)
+                    set("n", "<leader>e", vim.diagnostic.open_float, bufopts)
+                    set("n", "gD", vim.lsp.buf.declaration, bufopts)
+                    set("n", "gd", vim.lsp.buf.definition, bufopts)
+                    set("n", "gi", vim.lsp.buf.implementation, bufopts)
+                end
+            })
         end,
     },
 
@@ -68,6 +104,12 @@ M = {
                 -- mypy: Static type analysis for Python
                 python = { 'mypy' }
             }
+
+            vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+                callback = function()
+                    require('lint').try_lint()
+                end
+            })
         end
     },
 
@@ -79,7 +121,8 @@ M = {
             handler_opts = {
                 border = "rounded"
             },
-            hint_prefix = '🌈 '
+            hint_prefix = '🌈 ',
+            floating_window = false
         }
     },
 
@@ -114,15 +157,13 @@ M = {
                 mapping = cmp.mapping.preset.insert({
                     ["<CR>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
-                            cmp.select_next_item()
-                        else
-                            fallback()
-                        end
-                    end, { "i", "s" }),
-
-                    ["<S-CR>"] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                            cmp.select_prev_item()
+                            if luasnip.expandable() then
+                                luasnip.expand()
+                            else
+                                cmp.confirm({
+                                    select = false
+                                })
+                            end
                         else
                             fallback()
                         end
