@@ -7,13 +7,13 @@ local M = {
 			"hrsh7th/cmp-buffer",
 			"saadparwaiz1/cmp_luasnip",
 		},
-		config = function()
+		config = function ()
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
 
 			cmp.setup({
 				snippet = {
-					expand = function(args)
+					expand = function (args)
 						luasnip.lsp_expand(args.body)
 					end,
 				},
@@ -22,13 +22,13 @@ local M = {
 					documentation = cmp.config.window.bordered(),
 				},
 				mapping = cmp.mapping.preset.insert({
-					["<CR>"] = cmp.mapping(function(fallback)
+					["<S-CR>"] = cmp.mapping(function (fallback)
 						if cmp.visible() then
 							if luasnip.expandable() then
 								luasnip.expand({})
 							else
 								cmp.confirm({
-									select = false,
+									select = true,
 								})
 							end
 						else
@@ -36,7 +36,7 @@ local M = {
 						end
 					end, { "i", "s" }),
 
-					["<Tab>"] = cmp.mapping(function(fallback)
+					["<Tab>"] = cmp.mapping(function (fallback)
 						if luasnip.expandable() or luasnip.locally_jumpable(1) then
 							luasnip.expand_or_jump()
 						else
@@ -44,7 +44,7 @@ local M = {
 						end
 					end, { "i", "s" }),
 
-					["<S-Tab>"] = cmp.mapping(function(fallback)
+					["<S-Tab>"] = cmp.mapping(function (fallback)
 						if luasnip.expandable() then
 							luasnip.expand({})
 						elseif luasnip.locally_jumpable(-1) then
@@ -72,7 +72,7 @@ local M = {
 		dependencies = {
 			"rafamadriz/friendly-snippets",
 		},
-		config = function()
+		config = function ()
 			require("luasnip.loaders.from_vscode").lazy_load()
 		end,
 	},
