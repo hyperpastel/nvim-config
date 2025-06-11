@@ -57,7 +57,8 @@ local M = {
 					["<C-e>"] = cmp.mapping.abort(),
 				}),
 				completion = {
-					autocomplete = false,
+					keyword_length = 3
+
 				},
 				sources = cmp.config.sources({
 					{ name = "nvim_lsp" },
