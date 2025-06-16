@@ -22,7 +22,7 @@ local M = {
 					documentation = cmp.config.window.bordered(),
 				},
 				mapping = cmp.mapping.preset.insert({
-					["<S-CR>"] = cmp.mapping(function (fallback)
+					["<CR>"] = cmp.mapping(function (fallback)
 						if cmp.visible() then
 							if luasnip.expandable() then
 								luasnip.expand({})
