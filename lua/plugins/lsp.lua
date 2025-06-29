@@ -13,7 +13,7 @@ local M = {
             -- Nix: nixd
             -- Spellchecking: typos_lsp
 
-            local servers = { "clangd", "ruff", "pylsp", "lua_ls", "texlab", "nixd", "typos_lsp", "jdtls" }
+            local servers = { "clangd", "ruff", "pylsp", "lua_ls", "texlab", "nixd", "typos_lsp", "jdtls", "c3_lsp" }
             for _, server in ipairs(servers) do
                 vim.lsp.enable(server)
             end
@@ -31,6 +31,15 @@ local M = {
                     },
                 },
             })
+
+			-- This is needed on nix, since nixpkgs provides the executable as c3-lsp,
+			-- while upstream uses a build script and generates it as 'c3lsp'
+			--
+			-- I am currently working on a PR that introduces a Justfile and fixes this
+			-- discrepancy
+			vim.lsp.config("c3_lsp", {
+				cmd = { "c3-lsp" }
+			})
 
             vim.lsp.config("nixd", {
                 settings = {
