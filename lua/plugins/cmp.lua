@@ -71,6 +71,8 @@ local M = {
 		},
 		config = function ()
 			require("luasnip.loaders.from_vscode").lazy_load()
+			-- https://github.com/hyperpastel/snippets, or add your own personal snippets here
+			require("luasnip.loaders.from_lua").load({ paths = { "~/.config/snippets/" } })
 		end,
 	},
 }
