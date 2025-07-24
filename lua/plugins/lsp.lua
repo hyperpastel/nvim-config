@@ -7,7 +7,7 @@ local M = {
 			})
 
 			-- C / C++: clangd
-			-- Python: Ruff for {formatting, linting, organising imports}, Pylsp for completions
+			-- Python: basedpyright
 			-- Lua: lua_ls with lazydev
 			-- LaTeX: texlab
 			-- Nix: nixd
@@ -15,8 +15,7 @@ local M = {
 
 			local servers = {
 				"clangd",
-				"ruff",
-				"pylsp",
+				"basedpyright",
 				"lua_ls",
 				"texlab",
 				"nixd",
@@ -24,23 +23,10 @@ local M = {
 				"jdtls",
 				"c3_lsp"
 			}
+
 			for _, server in ipairs(servers) do
 				vim.lsp.enable(server)
 			end
-
-			vim.lsp.config("pylsp", {
-				settings = {
-					pylsp = {
-						-- Ruff does this for us but faster
-						plugins = {
-							autopep8 = { enabled = false },
-							mccabe = { enabled = false },
-							preload = { enabled = false },
-							pycodestyle = { enabled = false },
-						},
-					},
-				},
-			})
 
 			-- This is needed on nix, since nixpkgs provides the executable as c3-lsp,
 			-- while upstream uses a build script and generates it as 'c3lsp'
@@ -102,21 +88,6 @@ local M = {
 					set("n", "gD", vim.lsp.buf.declaration, bufopts)
 					set("n", "gd", vim.lsp.buf.definition, bufopts)
 					set("n", "gi", vim.lsp.buf.implementation, bufopts)
-				end,
-			})
-		end,
-	},
-	{
-		"mfussenegger/nvim-lint",
-		config = function ()
-			require("lint").linters_by_ft = {
-				-- mypy: Static type analysis for Python
-				python = { "mypy" },
-			}
-
-			vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-				callback = function ()
-					require("lint").try_lint()
 				end,
 			})
 		end,
