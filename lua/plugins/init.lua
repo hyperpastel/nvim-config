@@ -1,12 +1,10 @@
 local M = {
 	{
-		"neanias/everforest-nvim",
-		version = false,
-		lazy = false,
-		priority = 1000, -- make sure to load this before all the other start plugins
+		"rose-pine/neovim",
+		name = "rose-pine",
 		config = function ()
-			require('everforest').setup({
-				background = "hard";
+			require('rose-pine').setup({
+				variant = "moon"
 			})
 			vim.cmd([[colorscheme everforest]])
 		end,
