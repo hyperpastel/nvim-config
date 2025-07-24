@@ -24,7 +24,6 @@
         devShells.default = mkShell {
           buildInputs = [
             lua-language-server
-            stylua
           ];
 
           shellHook = ''
