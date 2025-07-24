@@ -6,8 +6,28 @@ local M = {
 			require('rose-pine').setup({
 				variant = "moon"
 			})
-			vim.cmd([[colorscheme everforest]])
-		end,
+			vim.cmd("colorscheme rose-pine")
+		end
+	},
+	{
+		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
+		lazy = false,
+		build = ":TSUpdate",
+		config = function ()
+			local ts = require 'nvim-treesitter'
+			ts.setup { install_dir = vim.fn.stdpath('data') .. '/site' }
+			ts.install {
+				"c",
+				"lua",
+				"vim",
+				"vimdoc",
+				"markdown",
+				"python",
+				"rust",
+				"c3"
+			}
+		end
 	},
 	{
 		'nvim-telescope/telescope.nvim',
